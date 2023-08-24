@@ -1,5 +1,6 @@
 import { Profile } from "../entity/Profile";
 import { AppDataSource } from "../data-source";
+import { User } from "../entity/User";
 
 
 class ProfileService {
@@ -13,10 +14,26 @@ class ProfileService {
         }
     }
 
-    async addProfile(req, res){
+
+    async addProfile(req, userId){
         try {
-            const newProfile = await AppDataSource.getRepository(Profile).create(req);
-            const result = await AppDataSource.getRepository(Profile).save(newProfile);
+            const profileRepository = AppDataSource.getRepository(Profile);
+            const userRepository = AppDataSource.getRepository(User);
+
+
+ 
+            const user = await userRepository.findOne({
+                where:{
+                    id:userId,
+                }
+            })
+            const {Marks, Department} = req;
+            const newProfile = profileRepository.create({
+                Marks,
+                Department,
+                user,
+            })
+            await profileRepository.save(newProfile);
             return newProfile;
         } catch (error) {
             console.log(error);
